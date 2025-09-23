@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "MoocsEX",
+  "description": "",
+  "version": "0.1",
+  "content_scripts": [
+    {
+      "js": [
+        "scripts/jquery-3.7.1.min.js",
+        "scripts/content.js"
+      ],
+      "matches": [
+        "https://moocs.iniad.org/courses*"
+      ]
+    }
+  ]
+}
