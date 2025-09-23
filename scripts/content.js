@@ -57,11 +57,22 @@ if (mainElement) {
 markingWell()
 deleteWell();
 
-const btn = document.createElement("button");
-btn.textContent = "aaaaaa"
-const content = document.querySelector(".content-header")
-content.prepend(btn)
+menu();
 
-btn.addEventListener("click", (e) =>{
-  document.getElementById("1").parentElement.style.display = "none";
-})
+function menu(){
+  const btn = document.createElement('button');
+  btn.id ='btn'
+  btn.textContent = '表示メニュー'
+  const content = document.querySelector('.content-header')
+  content.prepend(btn)
+
+  const menuBoard = document.createElement('div');
+  menuBoard.id = 'menuboard';
+  const mainElement = document.querySelector('body');
+  mainElement.prepend(menuBoard);
+  menuBoard.textContent = TARGET
+
+  btn.addEventListener('click', (e) =>{
+    menuBoard.style.display = 'flex';
+  })
+}

@@ -11,7 +11,8 @@
       ],
       "matches": [
         "https://moocs.iniad.org/courses*"
-      ]
+      ],
+      "css": ["style.css"]
     }
   ]
 }

@@ -1,0 +1,13 @@
+#menuboard{
+    display: none;
+    position: fixed;
+    flex-direction: row;
+    align-items: center;
+    background-color: white;
+    width: 60vw;
+    height: 500px;
+    border: 1px solid black;
+    z-index: 100;
+    transform: translate(-50%, 10%);
+    left: 50vw;
+}
