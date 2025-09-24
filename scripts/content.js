@@ -8,56 +8,53 @@ const TARGET= [['コンピュータ・サイエンス概論 IV', 'CS概論4'],
                ["コンピュータ・システム演習II / 情報連携エンジニアリング演習IB", "システム演習2"]
             ];
 
-let removedFlag = true;
+const courseInfoList = []
 
-function markingWell(){
-  const allDivs = document.querySelectorAll('.well');
-    allDivs.forEach((div, index) =>{
-      div.id = index;
-    })
+class courseInfo{
+  constructor(fullName, callName, state, id){
+    this.fullName = fullName;
+    this.callName = callName;
+    this.state = state;
+    this.id = id
+  }
 }
+
+function getWellAll(){
+  return document.querySelectorAll('.well');
+}
+
+function loadCourseInfo(allDivs){
+  allDivs.forEach((div, index) =>{
+    div.id = index;
+    const header = div.querySelector('.media-heading');
+    if (header.textContent){
+      const courseName = header.textContent;
+      const p = new courseInfo(courseName, courseName, false, index);
+      for (const element of TARGET){
+        if (courseName === element[0]){
+          p.callName = element[1];
+          p.state = true;
+          break;
+        }
+      }
+      courseInfoList.push(p);
+    }
+    }
+)}
 
 function deleteWell() {
-    const allDivs = document.querySelectorAll('.well');
-    for (const div of allDivs) {
-      for (const element of TARGET){
-        const header = div.querySelector('.media-heading')
-        if(!header){
-          break
+  for (const element of courseInfoList){
+    const div = document.getElementById(element.id);
+    const header = div.querySelector('.media-heading')
+    if (element.fullName　!== element.callName) {
+          header.innerHTML = header.textContent.replaceAll(element.fullName, element.callName);
         }
-        if (header.textContent　=== element[0]) {
-            header.innerHTML = header.textContent.replaceAll(element[0], element[1])
-            removedFlag = false;
-            break;
-        }
-      }
-      if (removedFlag === true){
+    if (element.state === false){
         div.parentElement.style.display = "none";
-      } else {
-        removedFlag = true;
-      }
+  } 
     }
-    return false; 
+  return false; 
 }
-
-const observer = new MutationObserver((mutations) => {
-    if (deleteWell()) {
-    observer.disconnect();
-    }
-});
-
-const mainElement = document.querySelector('main');
-if (mainElement) {
-  observer.observe(mainElement, {
-    childList: true, 
-    subtree: true    
-  });
-}
-
-markingWell()
-deleteWell();
-
-menu();
 
 function menu(){
   const btn = document.createElement('button');
@@ -76,3 +73,16 @@ function menu(){
     menuBoard.style.display = 'flex';
   })
 }
+
+const mainElement = document.querySelector('main');
+if (mainElement) {
+  observer.observe(mainElement, {
+    childList: true, 
+    subtree: true
+  });
+}
+
+const AllWells = getWellAll();
+loadCourseInfo(AllWells);
+deleteWell();
+menu();

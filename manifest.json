@@ -10,7 +10,7 @@
         "scripts/content.js"
       ],
       "matches": [
-        "https://moocs.iniad.org/courses*"
+        "https://moocs.iniad.org/courses"
       ],
       "css": ["style.css"]
     }
