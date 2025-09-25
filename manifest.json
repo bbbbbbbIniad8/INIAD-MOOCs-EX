@@ -14,5 +14,11 @@
       ],
       "css": ["style.css"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "scripts/setting.html" ],
+      "matches": [ "https://moocs.iniad.org/*" ]
+    }
   ]
 }
