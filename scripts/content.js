@@ -117,7 +117,13 @@ function menu() {
             btn.addEventListener('click', (e) => {
                 menuBoard.style.display = 'flex';
             })
+
+            const menuClose = document.querySelector("#menu-close");
+            menuClose.addEventListener("click", ()=>{
+              menuBoard.style.display = "none";
+            })
         })
+  
 }
 
 function changeState(element, info){
