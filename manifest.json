@@ -3,6 +3,9 @@
   "name": "MoocsEX",
   "description": "",
   "version": "0.1",
+  "permissions": [
+    "storage"
+  ],
   "content_scripts": [
     {
       "js": [
