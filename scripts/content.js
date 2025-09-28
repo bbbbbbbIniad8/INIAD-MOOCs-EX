@@ -1,171 +1,116 @@
-// const TARGET= [['コンピュータ・サイエンス概論 IV', 'CS概論4'],
-//                ["情報連携のための数学A (~1F1021) / 数学Ⅰ (1F1022~)", "数学1"],
-//                ["情報連携のための数学2 (1F1022~) / 数学B (~1F1021) ", "数学2"],
-//                ["コンピュータ・アーキテクチャ", "アーキテクチャ"],
-//                ["コンピュータ・ソフトウェア演習Ⅱ", "ソフ演2"],
-//                ["データベース・ビッグデータ解析","データベース"],
-//                ["コンピュータ・サイエンス演習IV / 情報連携基礎演習IV","CS演習4"],
-//                ["コンピュータ・システム演習II / 情報連携エンジニアリング演習IB", "システム演習2"]
-//             ];
-
-
-let TARGET = [];
-
-chrome.storage.sync.get({ myCourseList: [] }, (result) => {
-    TARGET = result.myCourseList;
-    console.log("load course.");
-
-  const courseInfoList = []
-  class courseInfo{
-    constructor(fullName, callName, state, id){
-      this.fullName = fullName;
-      this.callName = callName;
-      this.state = state;
-      this.id = id
-    }
+let courseInfoList = [];
+class courseInfo{
+  constructor(fullName, callName, state, id){
+    this.fullName = fullName;
+    this.callName = callName;
+    this.state = state;
+    this.id = id
   }
+}
 
-  function getWellAll(){
-    return document.querySelectorAll('.well');
-  }
-
-  function loadCourseInfo(allDivs, targetList){
-    allDivs.forEach((div, index) =>{
-      div.id = index;
-      const header = div.querySelector('.media-heading');
-      if (header.textContent){
-        const courseName = header.textContent;
-        const p = new courseInfo(courseName, courseName, false, index);
-        for (const element of targetList){
-          if (courseName === element[0]){
-            p.callName = element[1];
-            p.state = true;
-            break;
-          }
+function loadCourseInfo(allDivs, targetList){
+  allDivs.forEach((div, index) =>{
+    div.id = index;
+    const headerText = div.querySelector('.media-heading').textContent;
+    if (headerText){
+      const courseName = headerText;
+      const course = new courseInfo(courseName, courseName, false, index);
+      for (const element of targetList){
+        if (courseName === element[0]){
+          course.callName = element[1];
+          course.state = true;
+          break;
         }
-        courseInfoList.push(p);
       }
-      }
-  )}
+      courseInfoList.push(course);
+    }}
+)}
 
-  function deleteWell() {
-    const saveList = [];
-    for (const element of courseInfoList){
-      const div = document.getElementById(element.id);
-      const header = div.querySelector('.media-heading');
-      if (element.fullName　!== element.callName) {
-            header.innerHTML = header.textContent.replaceAll(element.fullName, element.callName);
-      }
-      div.parentElement.style.display = (element.state === false) ? "none" : "";
-      if (element.state === true){
-        saveList.push([element.fullName, element.callName])
-      }
-    }
-    chrome.storage.sync.set({ myCourseList: saveList }, () => {
-      console.log('設定が保存されました。');
-      return false; 
-    });
-    
+function ReflectToWell() {
+  const saveList = [];
+  for (const element of courseInfoList){
+    const div = document.getElementById(element.id);
+    const header = div.querySelector('.media-heading');
+    header.innerHTML = header.textContent.replaceAll(element.fullName, element.callName);
+    div.parentElement.style.display = (element.state === false) ? "none" : "";
+    element.state && saveList.push([element.fullName, element.callName]);
   }
+  chrome.storage.sync.set({ myCourseList: saveList }, () => {
+    console.log('設定が保存されました。');
+    return false; 
+  });
+}
 
-  function menu() {
-      const btn = document.createElement('button');
-      btn.id = 'btn'
-      btn.textContent = '表示メニュー'
-      const content = document.querySelector('.content-header')
-      content.prepend(btn)
+function createAddElement(mode, element, parent, childClass, childTextContent){
+  const child = document.createElement(element); 
+  child.className = childClass;
+  (childTextContent !== null) && (child.textContent = childTextContent);
+  (mode === 'prepend') ? (parent.prepend(child)) : (parent.appendChild(child));
+  return child;
+}
 
-      const menuBoard = document.createElement('div');
-      menuBoard.id = 'menuboard';
-      const mainElement = document.querySelector('body');
-      mainElement.prepend(menuBoard);
+function clickChangeDisplay(clicked, changeElement, display){
+  clicked.addEventListener('click', () => {
+    changeElement.style.display = display;
+  })
+}
 
-      fetch(chrome.runtime.getURL('scripts/setting.html'))
-          .then(response => response.text())
-          .then(data => {
-              menuBoard.innerHTML = data;
-              const menuContent = document.querySelector('#menu-content');
+function menu() {
+  const content = document.querySelector('.content-header')
+  const mainElement = document.querySelector('body');
 
-              for (const info of courseInfoList) {
-                  const element = document.createElement('div');
-                  element.className = 'settingItem';
+  const btn = createAddElement('prepend', 'button', content, 'btn', '表示メニュー');      
+  const menuBoard = createAddElement('prepend', 'div', mainElement, 'menuboard', null);
 
-                  const textItem = document.createElement('div');
-                  textItem.className = 'text-item'; 
+  fetch(chrome.runtime.getURL('scripts/setting.html'))
+    .then(response => response.text())
+    .then(data => {
+      menuBoard.innerHTML = data;
+      const menuContent = document.querySelector('#menu-content');
 
-                  const courseName = document.createElement('div');
-                  courseName.textContent = info.fullName;
-                  courseName.className = 'Item-title';
-                  textItem.appendChild(courseName);
-
-                  const callName = document.createElement('div');
-                  callName.textContent = '名前変更';
-                  callName.className = 'Item-callName sub-Item';
-                  textItem.appendChild(callName);
-
-                  const courseState = document.createElement('div');
-
-                  
-                  if (info.state === true) {
-                      courseState.textContent = ' 表示 ';
-                      courseState.style.backgroundColor = 'black'
-                      courseState.style.color = 'white';
-                  } else {
-                      courseState.textContent = '非表示';
-                  }
-
-                  courseState.addEventListener('click', (e) =>{
-                    changeState(courseState, info);
-                  })
-
-
-                  courseState.className = 'Item-courseState sub-Item';
-
-                  
-                  element.appendChild(textItem);
-                  element.appendChild(courseState); 
-                  
-                  menuContent.appendChild(element);
-              }
-
-              btn.addEventListener('click', (e) => {
-                  menuBoard.style.display = 'flex';
-              })
-
-              const menuClose = document.querySelector("#menu-close");
-              menuClose.addEventListener("click", ()=>{
-                menuBoard.style.display = "none";
-              })
-          })
-    
-  }
-
-  function changeState(element, info){
-    if (info.state === false) {
-          element.textContent = ' 表示 ';
-          element.style.backgroundColor = 'black'
-          element.style.color = 'white';
-          info.state = true;
-      } else {
-          element.textContent = '非表示';
-          element.style.backgroundColor = 'white'
-          element.style.color = 'black';
-          info.state = false;
+      for (const info of courseInfoList) {
+        const element = createAddElement('append', 'div', menuContent, 'settingItem', null);
+        const textItem = createAddElement('append', 'div', element, 'text-item', null);
+        createAddElement('append', 'div', textItem, 'Item-title', info.fullName);
+        createAddElement('append', 'div', textItem, 'Item-callName sub-Item', '名前変更');
+        const courseState = createAddElement('append', 'div', element, 'Item-courseState sub-Item', null);
+        if (info.state === true) {
+          courseState.textContent = ' 表示 ';
+          courseState.style.backgroundColor = 'black'
+          courseState.style.color = 'white';
+        } else {
+          courseState.textContent = '非表示';
+        }
+        courseState.addEventListener('click', () =>{
+          changeState(courseState, info);
+        })
       }
-      deleteWell();
-  }
-    
+      const menuClose = document.querySelector("#menu-close");
+      clickChangeDisplay(btn, menuBoard, 'flex')
+      clickChangeDisplay(menuClose, menuBoard, 'none')
+  })
+}
 
-  const mainElement = document.querySelector('main');
+function changeState(element, info){
+  element.textContent = (info.state === false) ? ' 表示 ' : '非表示';
+  element.style.backgroundColor = (info.state === false) ? 'black' : 'white';
+  element.style.color = (info.state === false) ? 'white' : 'black';
+  info.state = (info.state === false) ? true: false;
+  ReflectToWell();
+}
+
+const mainElement = document.querySelector('main');
   if (mainElement) {
     observer.observe(mainElement, {
       childList: true, 
       subtree: true
     });
   }
-
-  const AllWells = getWellAll();
-  loadCourseInfo(AllWells, TARGET);
-  deleteWell();
+  
+chrome.storage.sync.get({ myCourseList: [] }, (result) => {
+  const NoDeleteList = result.myCourseList;
+  const AllWells = document.querySelectorAll('.well');
+  loadCourseInfo(AllWells, NoDeleteList);
+  ReflectToWell();
   menu();
 });
